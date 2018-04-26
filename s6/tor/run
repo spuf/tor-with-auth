@@ -1,0 +1,8 @@
+#!/bin/sh
+set -e
+
+CONFIG=/etc/tor/torrc
+printenv | sort | grep '^TOR_' | sed -E 's/TOR_([^=]*)=(.*)/\1 \2/' > $CONFIG
+echo $CONFIG
+cat $CONFIG
+exec /usr/bin/tor -f $CONFIG
