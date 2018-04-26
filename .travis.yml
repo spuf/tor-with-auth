@@ -1,0 +1,6 @@
+sudo: required
+
+services:
+  - docker
+
+script: tests/e2e-test.sh
