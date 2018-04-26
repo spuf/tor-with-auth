@@ -1,8 +1,8 @@
 FROM alpine:edge
 
 RUN apk --no-cache upgrade && \
-    apk --no-cache add s6 && \
-    echo http://dl-cdn.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories  && \
+    apk --no-cache add s6 curl && \
+    echo 'http://dl-cdn.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories  && \
     apk --no-cache add tor 3proxy
 
 ENV TOR_SOCKSPort="127.0.0.1:9050" \
@@ -20,8 +20,11 @@ ENV TOR_SOCKSPort="127.0.0.1:9050" \
 
 ADD src/etc/s6 /etc/s6
 
-VOLUME [ "/var/lib/tor" ]
+EXPOSE 1088 9050
 
-EXPOSE 1088
+HEALTHCHECK --interval=60s --timeout=30s --start-period=60s \
+    CMD /bin/sh -c "curl -fsSL -x 'socks5://127.0.0.1:9050' 'https://check.torproject.org/?lang=en_US' | fgrep -q -m 1 'Congratulations. This browser is configured to use Tor.' || exit 1"
+
+VOLUME [ "/var/lib/tor" ]
 
 CMD [ "/bin/s6-svscan", "/etc/s6" ]

@@ -1,8 +1,33 @@
 #!/usr/bin/env bash
 
+CONTAINER_NAME=tor-with-auth
+TESTS_PATH=$(dirname $BASH_SOURCE)
+
 step() {
     echo
-    echo '==>' $1
+    echo -e "\033[1m==> $1\033[0m"
+}
+
+test_ok() {
+    echo -e "\033[32mOK\033[0m"
+}
+
+show_info() {
+    echo 'Logs:'
+    echo -ne "\033[2m"
+    docker logs $CONTAINER_NAME
+    echo -ne "\033[0m"
+    echo 'Inspect:'
+    echo -ne "\033[2m"
+    docker inspect $CONTAINER_NAME
+    echo -ne "\033[0m"
+}
+
+test_fail() {
+    echo -e "\033[31mFAIL\033[0m"
+    show_info
+    docker stop $CONTAINER_NAME &> /dev/null
+    exit 1
 }
 
 install_goss() {
@@ -33,9 +58,6 @@ install_goss() {
     echo "dgoss $DGOSS_VER has been installed to $DGOSS_INSTALL_LOC"
 }
 
-CONTAINER_NAME=tor-with-auth
-TESTS_PATH=$(dirname $BASH_SOURCE)
-
 step 'Build image'
 docker build --no-cache -t $CONTAINER_NAME .
 
@@ -46,44 +68,57 @@ env GOSS_PATH="$TESTS_PATH/goss" \
     $TESTS_PATH/dgoss run $CONTAINER_NAME
 
 step 'Run container'
-docker stop $CONTAINER_NAME &> /dev/null || true
-docker run --rm -p 127.0.0.1:1088:1088 -d --name $CONTAINER_NAME $CONTAINER_NAME
+docker stop $CONTAINER_NAME &> /dev/null
+docker run -d --rm -p 127.0.0.1:1088:1088 --name $CONTAINER_NAME $CONTAINER_NAME
 
-step 'Wait for Tor to open a circuit'
+step 'Run curl tests'
+echo -n 'Wait Tor to open a circuit'
 sleep 1
 TOR_SUCCESS='Tor has successfully opened a circuit. Looks like client functionality is working.'
 WAIT_LIMIT=120
 while ! docker logs $CONTAINER_NAME | fgrep -q -m 1 "$TOR_SUCCESS"; do
-    echo -n .
+    echo -n '.'
     WAIT_LIMIT=$(($WAIT_LIMIT-1))
-    [ $WAIT_LIMIT -le 0 ] && exit 1
+    [ $WAIT_LIMIT -le 0 ] && test_fail
     sleep 1
 done
 echo
 
-step 'Run curl tests'
+TEST_URI='https://check.torproject.org/?lang=en_US'
 echo -n 'Not using Tor without proxy: '
-curl -fsSL https://check.torproject.org/?lang=en_US \
+curl -fsSL "$TEST_URI" \
     | fgrep -q -m 1 'Sorry. You are not using Tor.' \
-    && echo 'OK'
+    && test_ok || test_fail
 
 echo -n 'Using Tor with proxy: '
-curl -fsSL -x socks5://user:pass@127.0.0.1:1088 https://check.torproject.org/?lang=en_US \
+curl -fsSL -x 'socks5://user:pass@127.0.0.1:1088' "$TEST_URI" \
     | fgrep -q -m 1 'Congratulations. This browser is configured to use Tor.' \
-    && echo 'OK'
+    && test_ok || test_fail
 
 echo -n 'Error with invalid user: '
-curl -fsL -x socks5://root@127.0.0.1:1088 https://check.torproject.org/?lang=en_US \
-    && exit 1 \
-    || echo 'OK'
+curl -fsL -x 'socks5://root@127.0.0.1:1088' "$TEST_URI" && test_fail || test_ok
 
 echo -n 'Error withouth auth: '
-curl -fsL -x socks5://127.0.0.1:1088 https://check.torproject.org/?lang=en_US \
-    && exit 1 \
-    || echo 'OK'
+curl -fsL -x 'socks5://127.0.0.1:1088' "$TEST_URI" && test_fail || test_ok
 
-step 'Container logs'
-docker logs $CONTAINER_NAME
+step 'Validate healthcheck'
+echo -n 'Wait healthcheck start period'
+WAIT_LIMIT=60
+while docker inspect $CONTAINER_NAME | fgrep -q -m 1 '"Status": "starting"'; do
+    echo -n '.'
+    WAIT_LIMIT=$(($WAIT_LIMIT-1))
+    [ $WAIT_LIMIT -le 0 ] && test_fail
+    sleep 1
+done
+echo
+
+echo -n 'Status is healthy: '
+docker inspect $CONTAINER_NAME \
+    | fgrep -q -m 1 '"Status": "healthy"' \
+    && test_ok || test_fail
+
+step 'Show container info'
+show_info
 
 step 'Stop container'
 docker stop $CONTAINER_NAME
