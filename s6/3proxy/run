@@ -1,0 +1,8 @@
+#!/bin/sh
+set -e
+
+CONFIG=/etc/3proxy/3proxy.cfg
+printenv | sort | grep '^3PROXY_' | sed -E 's/3PROXY_\d+_([^=]*)=(.*)/\1 \2/' > $CONFIG
+echo $CONFIG
+cat $CONFIG
+exec /usr/bin/3proxy $CONFIG
