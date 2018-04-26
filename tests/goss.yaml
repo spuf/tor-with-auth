@@ -1,0 +1,63 @@
+package:
+  s6:
+    installed: true
+    versions:
+      contain-element:
+        have-prefix: "2.7"
+  tor:
+    installed: true
+    versions:
+      contain-element:
+        have-prefix: "0.3"
+  3proxy:
+    installed: true
+    versions:
+      contain-element:
+        have-prefix: "0.8"
+file:
+  /etc/tor/torrc:
+    exists: true
+    mode: "0644"
+    owner: root
+    group: root
+    filetype: file
+    contains:
+    - "SOCKSPort 127.0.0.1:9050"
+    - "DataDirectory /var/lib/tor"
+    - "RelayBandwidthRate 1250 KBytes"
+    - "RelayBandwidthBurst 2500 KBytes"
+    - "ExitRelay 0"
+    - "ExitPolicy reject *:*"
+    - "PublishServerDescriptor 0"
+    - "ExcludeExitNodes {ua},{ru},{by},{kz},{tm},{cn}"
+    - "User tor"
+    - "HardwareAccel 1"
+  /etc/3proxy/3proxy.cfg:
+    exists: true
+    mode: "0644"
+    owner: root
+    group: root
+    filetype: file
+    contains:
+    - "log"
+    - "fakeresolve"
+    - "timeouts 30 30 60 60 180 1800 60 120"
+    - "users user:CL:pass"
+    - "auth strong"
+    - "allow user"
+    - "parent 1000 socks5 127.0.0.1 9050"
+    - "socks -p1088"
+port:
+  tcp:9050:
+    listening: true
+    ip:
+    - 127.0.0.1
+  tcp:1088:
+    listening: true
+    ip:
+    - 0.0.0.0
+process:
+  3proxy:
+    running: true
+  tor:
+    running: true
