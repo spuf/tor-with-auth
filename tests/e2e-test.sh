@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 CONTAINER_NAME=tor-with-auth
 TESTS_PATH=$(dirname $BASH_SOURCE)
 
@@ -26,7 +28,7 @@ show_info() {
 test_fail() {
     echo -e "\033[31mFAIL\033[0m"
     show_info
-    docker stop $CONTAINER_NAME &> /dev/null
+    docker stop $CONTAINER_NAME &> /dev/null || true
     exit 1
 }
 
@@ -68,7 +70,7 @@ env GOSS_PATH="$TESTS_PATH/goss" \
     $TESTS_PATH/dgoss run $CONTAINER_NAME
 
 step 'Run container'
-docker stop $CONTAINER_NAME &> /dev/null
+docker stop $CONTAINER_NAME &> /dev/null || true
 docker run -d --rm -p 127.0.0.1:1088:1088 --name $CONTAINER_NAME $CONTAINER_NAME
 
 step 'Run curl tests'
@@ -76,7 +78,7 @@ echo -n 'Wait Tor to open a circuit'
 sleep 1
 TOR_SUCCESS='Tor has successfully opened a circuit. Looks like client functionality is working.'
 WAIT_LIMIT=120
-while ! docker logs $CONTAINER_NAME | fgrep -q -m 1 "$TOR_SUCCESS"; do
+while ! docker logs $CONTAINER_NAME | fgrep -q "$TOR_SUCCESS"; do
     echo -n '.'
     WAIT_LIMIT=$(($WAIT_LIMIT-1))
     [ $WAIT_LIMIT -le 0 ] && test_fail
@@ -87,24 +89,29 @@ echo
 TEST_URI='https://check.torproject.org/?lang=en_US'
 echo -n 'Not using Tor without proxy: '
 curl -fsSL "$TEST_URI" \
-    | fgrep -q -m 1 'Sorry. You are not using Tor.' \
+    | fgrep -q 'Sorry. You are not using Tor.' \
     && test_ok || test_fail
 
 echo -n 'Using Tor with proxy: '
-curl -fsSL -x 'socks5://user:pass@127.0.0.1:1088' "$TEST_URI" \
-    | fgrep -q -m 1 'Congratulations. This browser is configured to use Tor.' \
+curl -fsSL -x 'socks5h://user:pass@127.0.0.1:1088' "$TEST_URI" \
+    | fgrep -q 'Congratulations. This browser is configured to use Tor.' \
+    && test_ok || test_fail
+
+echo -n 'Working onion router: '
+curl -fsSL -x 'socks5h://user:pass@127.0.0.1:1088' "http://facebookcorewwwi.onion/" \
+    | fgrep -q 'Facebook' \
     && test_ok || test_fail
 
 echo -n 'Error with invalid user: '
-curl -fsL -x 'socks5://root@127.0.0.1:1088' "$TEST_URI" && test_fail || test_ok
+curl -fsL -x 'socks5h://root@127.0.0.1:1088' "$TEST_URI" && test_fail || test_ok
 
 echo -n 'Error withouth auth: '
-curl -fsL -x 'socks5://127.0.0.1:1088' "$TEST_URI" && test_fail || test_ok
+curl -fsL -x 'socks5h://127.0.0.1:1088' "$TEST_URI" && test_fail || test_ok
 
 step 'Validate healthcheck'
 echo -n 'Wait healthcheck start period'
 WAIT_LIMIT=60
-while docker inspect $CONTAINER_NAME | fgrep -q -m 1 '"Status": "starting"'; do
+while docker inspect $CONTAINER_NAME | fgrep -q '"Status": "starting"'; do
     echo -n '.'
     WAIT_LIMIT=$(($WAIT_LIMIT-1))
     [ $WAIT_LIMIT -le 0 ] && test_fail
@@ -114,7 +121,7 @@ echo
 
 echo -n 'Status is healthy: '
 docker inspect $CONTAINER_NAME \
-    | fgrep -q -m 1 '"Status": "healthy"' \
+    | fgrep -q '"Status": "healthy"' \
     && test_ok || test_fail
 
 step 'Show container info'
