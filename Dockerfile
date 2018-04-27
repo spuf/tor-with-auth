@@ -23,7 +23,7 @@ ADD src/etc/s6 /etc/s6
 EXPOSE 1088 9050
 
 HEALTHCHECK --interval=60s --timeout=30s --start-period=60s \
-    CMD /bin/sh -c "curl -fsSL -x 'socks5://127.0.0.1:9050' 'https://check.torproject.org/?lang=en_US' | fgrep -q -m 1 'Congratulations. This browser is configured to use Tor.' || exit 1"
+    CMD /bin/sh -c "curl -fsSL -x 'socks5h://127.0.0.1:9050' 'https://check.torproject.org/?lang=en_US' | fgrep -q 'Congratulations. This browser is configured to use Tor.' || exit 1"
 
 VOLUME [ "/var/lib/tor" ]
 

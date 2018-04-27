@@ -45,7 +45,7 @@ file:
     - "users user:CL:pass"
     - "auth strong"
     - "allow user"
-    - "parent 1000 socks5 127.0.0.1 9050"
+    - "parent 1000 socks5+ 127.0.0.1 9050"
     - "socks -p1088"
 port:
   tcp:9050:
