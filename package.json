@@ -1,0 +1,12 @@
+{
+  "name": "tor-with-auth",
+  "private": true,
+  "scripts": {
+    "dev": "DEBUG=* cucumber-js --format progress-bar tests/features",
+    "test": "DEBUG=* cucumber-js tests/features"
+  },
+  "dependencies": {
+    "cucumber": "^4.2.1",
+    "debug": "^3.1.0"
+  }
+}
