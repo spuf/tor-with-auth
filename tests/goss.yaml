@@ -46,13 +46,13 @@ file:
     - "auth strong"
     - "allow user"
     - "parent 1000 socks5+ 127.0.0.1 9050"
-    - "socks -p1088"
+    - "socks -p1080"
 port:
   tcp:9050:
     listening: true
     ip:
     - 127.0.0.1
-  tcp:1088:
+  tcp:1080:
     listening: true
     ip:
     - 0.0.0.0
