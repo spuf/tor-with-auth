@@ -1,6 +1,10 @@
 sudo: required
 
+language: node_js
+
 services:
   - docker
 
-script: tests/e2e-test.sh
+before_install: make install-deps
+install: make build-image
+script: make test-image

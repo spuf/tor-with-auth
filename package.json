@@ -2,7 +2,7 @@
   "name": "tor-with-auth",
   "private": true,
   "scripts": {
-    "test": "DEBUG=* node_modules/.bin/cucumber-js -f node_modules/cucumber-pretty tests/features"
+    "test": "DEBUG=* cucumber-js -f node_modules/cucumber-pretty tests/features"
   },
   "dependencies": {
     "cucumber": "^4.2.1",
