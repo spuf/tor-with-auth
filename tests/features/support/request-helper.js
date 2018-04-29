@@ -1,6 +1,5 @@
-const path = require('path');
+const child_process = require('child_process');
 const debug = require('debug');
-const { exec } = require('./lib');
 
 class RequestHelper {
   constructor(proxyAddr = '127.0.0.1:1080') {
@@ -22,7 +21,7 @@ class RequestHelper {
 
   exec(command, callback = (err, stdout, stderr) => {}) {
     this.logger.exec(command);
-    exec(command, (err, stdout, stderr) => {
+    child_process.exec(command, { maxBuffer: 1 * 1024 * 1024 }, (err, stdout, stderr) => {
       if (stdout) {
         this.logger.stdout(stdout);
       }

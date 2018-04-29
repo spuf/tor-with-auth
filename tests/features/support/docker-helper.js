@@ -1,5 +1,8 @@
+const path = require('path');
+const child_process = require('child_process');
 const debug = require('debug');
-const { exec } = require('./lib');
+
+const rootDir = path.resolve(__dirname, '../../..');
 
 class DockerHelper {
   constructor(listenAddr = '127.0.0.1:1080') {
@@ -18,9 +21,13 @@ class DockerHelper {
 
   exec(command, onResult = (err, stdout, stderr) => {}, onData = data => {}) {
     this.logger.exec(command);
-    const proc = exec(command, (err, stdout, stderr) => {
-      onResult(err, stdout.trim(), stderr.trim());
-    });
+    const proc = child_process.exec(
+      command,
+      { cwd: rootDir, maxBuffer: 1 * 1024 * 1024 },
+      (err, stdout, stderr) => {
+        onResult(err, stdout.trim(), stderr.trim());
+      }
+    );
     proc.stdout.on('data', data => {
       onData(data.toString());
     });
