@@ -1,6 +1,8 @@
 sudo: required
 
 services:
-  - docker
+- docker
 
-script: tests/e2e-test.sh
+language: node_js
+node_js:
+- node
