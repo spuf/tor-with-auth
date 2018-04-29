@@ -3,7 +3,7 @@ const { exec } = require('./lib');
 
 class DockerHelper {
   constructor(listenAddr = '127.0.0.1:1080') {
-    this.imageName = process.env.npm_package_config_image;
+    this.imageName = 'tor-with-auth';
     this.containerName = `${this.imageName}-test`;
     this.listenAddr = listenAddr;
     this.logger = {
