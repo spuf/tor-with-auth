@@ -2,6 +2,10 @@ const child_process = require('child_process');
 const debug = require('debug');
 
 class RequestHelper {
+  static get sendTimeout() {
+    return 30 * 1000;
+  }
+
   constructor(proxyAddr = '127.0.0.1:1080') {
     this.proxyAddr = proxyAddr;
     this.logger = {
@@ -21,19 +25,23 @@ class RequestHelper {
 
   exec(command, callback = (err, stdout, stderr) => {}) {
     this.logger.exec(command);
-    child_process.exec(command, { maxBuffer: 1 * 1024 * 1024 }, (err, stdout, stderr) => {
-      if (stdout) {
-        this.logger.stdout(stdout);
+    child_process.exec(
+      command,
+      { maxBuffer: 1 * 1024 * 1024, timeout: RequestHelper.sendTimeout },
+      (err, stdout, stderr) => {
+        if (stdout) {
+          this.logger.stdout(stdout);
+        }
+        if (stderr) {
+          this.logger.stderr(stderr.trim());
+        }
+        callback(err, stdout, stderr);
       }
-      if (stderr) {
-        this.logger.stderr(stderr.trim());
-      }
-      callback(err, stdout, stderr);
-    });
+    );
   }
 
   send(url, callback = () => {}) {
-    const cmd = ['curl', '-fsSL'];
+    const cmd = ['curl', '-fsSL', '-m', Math.floor(RequestHelper.sendTimeout / 1000).toString()];
     if (this.useProxy) {
       cmd.push('-x');
       const proxyUri = ['socks5h://'];

@@ -5,6 +5,13 @@ const debug = require('debug');
 const rootDir = path.resolve(__dirname, '../../..');
 
 class DockerHelper {
+  static get execTimeout() {
+    return 30 * 1000;
+  }
+  static get waitTimeout() {
+    return 2 * 60 * 1000;
+  }
+
   constructor(listenAddr = '127.0.0.1:1080') {
     this.imageName = 'tor-with-auth';
     this.containerName = `${this.imageName}-test`;
@@ -19,11 +26,11 @@ class DockerHelper {
     };
   }
 
-  exec(command, onResult = (err, stdout, stderr) => {}, onData = data => {}) {
+  exec(command, timeout, onResult = (err, stdout, stderr) => {}, onData = data => {}) {
     this.logger.exec(command);
     const proc = child_process.exec(
       command,
-      { cwd: rootDir, maxBuffer: 1 * 1024 * 1024 },
+      { cwd: rootDir, maxBuffer: 1 * 1024 * 1024, timeout },
       (err, stdout, stderr) => {
         onResult(err, stdout.trim(), stderr.trim());
       }
@@ -38,7 +45,7 @@ class DockerHelper {
   }
 
   stop(callback = () => {}) {
-    this.exec(`docker stop '${this.containerName}'`, () => callback());
+    this.exec(`docker stop '${this.containerName}'`, DockerHelper.execTimeout, () => callback());
   }
 
   run(callback = err => {}) {
@@ -46,6 +53,7 @@ class DockerHelper {
       `docker run -d --rm -p '${this.listenAddr}:1080' --name '${this.containerName}' '${
         this.imageName
       }'`,
+      DockerHelper.execTimeout,
       (err, stdout, stderr) => {
         if (stderr) {
           this.logger.stderr(stderr);
@@ -67,6 +75,7 @@ class DockerHelper {
     let proc;
     proc = this.exec(
       `docker logs -f '${this.containerName}'`,
+      DockerHelper.waitTimeout,
       err => {
         if (err) {
           callback(err);
@@ -86,24 +95,29 @@ class DockerHelper {
   }
 
   inspectHealthState(callback = (err, res) => {}) {
-    this.exec(`docker inspect -f '{{json .State.Health}}' '${this.containerName}'`, (err, data) => {
-      try {
-        if (err) {
-          throw err;
+    this.exec(
+      `docker inspect -f '{{json .State.Health}}' '${this.containerName}'`,
+      DockerHelper.execTimeout,
+      (err, data) => {
+        try {
+          if (err) {
+            throw err;
+          }
+          this.logger.health(data);
+          const res = JSON.parse(data);
+          callback(null, res);
+        } catch (err) {
+          callback(err);
         }
-        this.logger.health(data);
-        const res = JSON.parse(data);
-        callback(null, res);
-      } catch (err) {
-        callback(err);
       }
-    });
+    );
   }
 
   onEventHealthStatusChange(callback = err => {}) {
     let proc;
     proc = this.exec(
       `docker events --filter 'container=${this.containerName}' --filter 'event=health_status'`,
+      DockerHelper.waitTimeout,
       err => {
         if (err) {
           callback(err);

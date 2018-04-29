@@ -9,7 +9,10 @@ Before(function() {
   request.reset();
 });
 
-defineStep('I send request to {string}', function(url, callback) {
+defineStep('I send request to {string}', { timeout: RequestHelper.sendTimeout }, function(
+  url,
+  callback
+) {
   request.send(url, err => callback(err));
 });
 

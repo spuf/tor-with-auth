@@ -1,11 +1,11 @@
 const assert = require('assert');
-const { defineStep, AfterAll } = require('cucumber');
+const { defineStep, After } = require('cucumber');
 const { DockerHelper } = require('./docker-helper');
 
 const docker = new DockerHelper();
 let containerRunning = false;
 
-defineStep('container is running', function(callback) {
+defineStep('container is running', { timeout: DockerHelper.execTimeout }, function(callback) {
   docker.stop(() => {
     containerRunning = false;
     docker.run(err => {
@@ -15,17 +15,25 @@ defineStep('container is running', function(callback) {
   });
 });
 
-defineStep('container logs has {string}', function(substring, callback) {
+defineStep('container logs has {string}', { timeout: DockerHelper.waitTimeout }, function(
+  substring,
+  callback
+) {
   assert.ok(containerRunning, 'Container is not running');
   docker.onLogsContains(substring, err => callback(err));
 });
 
-defineStep('container health status is changed', function(callback) {
+defineStep('container health status is changed', { timeout: DockerHelper.waitTimeout }, function(
+  callback
+) {
   assert.ok(containerRunning, 'Container is not running');
   docker.onEventHealthStatusChange(err => callback(err));
 });
 
-defineStep('container health status is {string}', function(status, callback) {
+defineStep('container health status is {string}', { timeout: DockerHelper.execTimeout }, function(
+  status,
+  callback
+) {
   assert.ok(containerRunning, 'Container is not running');
   docker.inspectHealthState((err, res) => {
     try {
@@ -40,22 +48,26 @@ defineStep('container health status is {string}', function(status, callback) {
   });
 });
 
-defineStep('container health failing streak is {int}', function(count, callback) {
-  assert.ok(containerRunning, 'Container is not running');
-  docker.inspectHealthState((err, res) => {
-    try {
-      if (err) {
-        throw err;
+defineStep(
+  'container health failing streak is {int}',
+  { timeout: DockerHelper.execTimeout },
+  function(count, callback) {
+    assert.ok(containerRunning, 'Container is not running');
+    docker.inspectHealthState((err, res) => {
+      try {
+        if (err) {
+          throw err;
+        }
+        assert.strictEqual(res.FailingStreak, count);
+        callback();
+      } catch (err) {
+        callback(err);
       }
-      assert.strictEqual(res.FailingStreak, count);
-      callback();
-    } catch (err) {
-      callback(err);
-    }
-  });
-});
+    });
+  }
+);
 
-AfterAll(function(callback) {
+After({ timeout: DockerHelper.execTimeout }, function(_, callback) {
   docker.stop(() => {
     containerRunning = false;
     callback();
