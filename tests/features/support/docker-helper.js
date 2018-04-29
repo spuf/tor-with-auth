@@ -18,16 +18,16 @@ class DockerHelper {
 
   exec(command, onResult = (err, stdout, stderr) => {}, onData = data => {}) {
     this.logger.exec(command);
-    const process = exec(command, (err, stdout, stderr) => {
+    const proc = exec(command, (err, stdout, stderr) => {
       onResult(err, stdout.trim(), stderr.trim());
     });
-    process.stdout.on('data', data => {
+    proc.stdout.on('data', data => {
       onData(data.toString());
     });
-    process.stderr.on('data', data => {
+    proc.stderr.on('data', data => {
       onData(data.toString());
     });
-    return process;
+    return proc;
   }
 
   stop(callback = () => {}) {
@@ -57,7 +57,7 @@ class DockerHelper {
 
   onLogsContains(substring, callback = err => {}) {
     let logs = '';
-    const process = this.exec(
+    const proc = this.exec(
       `docker logs -f '${this.containerName}'`,
       err => {
         if (err) {
@@ -68,7 +68,7 @@ class DockerHelper {
         this.logger.logs(data.trim());
         logs += data;
         if (logs.includes(substring)) {
-          process.kill();
+          proc.kill();
           callback();
         }
       }
@@ -91,7 +91,7 @@ class DockerHelper {
   }
 
   onEventHealthStatusChange(callback = err => {}) {
-    const process = this.exec(
+    const proc = this.exec(
       `docker events --filter 'container=${this.containerName}' --filter 'event=health_status'`,
       err => {
         if (err) {
@@ -100,7 +100,7 @@ class DockerHelper {
       },
       data => {
         this.logger.events(data.trim());
-        process.kill();
+        proc.kill();
         callback();
       }
     );
