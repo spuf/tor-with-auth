@@ -4,8 +4,10 @@ set -e
 CONFIG=/etc/tor/torrc
 
 printenv | grep '^TOR_' | sed -E 's/TOR_([^=]*)=(.*)/\1 \2/' > $CONFIG
-echo 'SOCKSPort 127.0.0.1:9050' >> $CONFIG
-echo 'DataDirectory /var/lib/tor' >> $CONFIG
-echo 'User tor' >> $CONFIG
+cat << EOF >> $CONFIG
+SOCKSPort 127.0.0.1:9050
+DataDirectory /var/lib/tor
+User tor
+EOF
 
 exec /usr/bin/tor -f $CONFIG
