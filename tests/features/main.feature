@@ -38,14 +38,6 @@ Feature: container
     When I send request to "https://check.torproject.org"
     Then request is failed
 
-  Scenario: proxy waits Tor is ready
-    Given container is running
-    And proxy is used
-    And proxy auth is "user:pass"
-    When I send request to "https://check.torproject.org/?lang=en_US"
-    Then request is successful
-    And response contains "Congratulations. This browser is configured to use Tor."
-
   Scenario: health check
     Given container is running
     And container health status is changed
