@@ -36,8 +36,14 @@ class RequestHelper {
   send(url, callback = () => {}) {
     const cmd = ['curl', '-fsSL'];
     if (this.useProxy) {
-      const auth = this.proxyAuth ? `${this.proxyAuth}@` : '';
-      cmd.push(`-x 'socks5h://${auth}${this.proxyAddr}'`);
+      cmd.push('-x');
+      const proxyUri = ['socks5h://'];
+      if (this.proxyAuth) {
+        proxyUri.push(this.proxyAuth);
+        proxyUri.push('@');
+      }
+      proxyUri.push(this.proxyAddr);
+      cmd.push(`'${proxyUri.join('')}'`);
     }
     cmd.push(`'${url}'`);
     this.exec(cmd.join(' '), (err, stdout, stderr) => {

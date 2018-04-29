@@ -2,15 +2,9 @@ const debug = require('debug');
 const { exec } = require('./lib');
 
 class DockerHelper {
-  constructor(
-    { imageName, containerName, listenAddr } = {
-      imageName: 'tor-with-auth',
-      containerName: 'tor-with-auth-test',
-      listenAddr: '127.0.0.1:1080'
-    }
-  ) {
-    this.imageName = imageName;
-    this.containerName = containerName;
+  constructor(listenAddr = '127.0.0.1:1080') {
+    this.imageName = process.env.npm_package_config_image;
+    this.containerName = `${this.imageName}-test`;
     this.listenAddr = listenAddr;
     this.logger = {
       exec: debug('docker:exec'),

@@ -1,11 +1,8 @@
 sudo: required
 
-language: node_js
-node_js: "node"
-
 services:
-  - docker
+- docker
 
-before_install: make install-deps
-install: make build-image
-script: make test-image
+language: node_js
+node_js:
+- node
