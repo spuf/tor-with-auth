@@ -1,33 +1,40 @@
 const assert = require('assert');
 const util = require('util');
-const { defineStep } = require('cucumber');
+const { defineStep, Before } = require('cucumber');
+const { RequestHelper } = require('./request-helper');
 
-let containerRunning = false;
+const request = new RequestHelper();
+
+Before(function() {
+  request.reset();
+});
 
 defineStep('I send request to {string}', function(url, callback) {
-  this.sendRequest(url, err => callback(err));
+  request.send(url, err => callback(err));
 });
 
 defineStep('request is successful', function() {
-  assert.ifError(this.responseError);
-  assert.ok(typeof this.response === 'string', 'Response should be string type.');
-  assert.ok(this.response.length > 0, 'Response should be not empty string.');
+  assert.ifError(request.getResponseError());
+  const body = request.getResponseBody();
+  assert.ok(typeof body === 'string', 'Response should be string type.');
+  assert.ok(body.length > 0, 'Response should be not empty string.');
 });
 
 defineStep('request is failed', function() {
-  assert.ok(util.types.isNativeError(this.responseError), 'Request should return error.');
+  assert.ok(util.types.isNativeError(request.getResponseError()), 'Request should return error.');
 });
 
 defineStep('response contains {string}', function(substring) {
-  assert.ok(typeof this.response === 'string', 'Response should be string type.');
-  assert.ok(this.response.length > 0, 'Response should be not empty string.');
-  assert.ok(this.response.includes(substring), 'Response does not contains.');
+  const body = request.getResponseBody();
+  assert.ok(typeof body === 'string', 'Response should be string type.');
+  assert.ok(body.length > 0, 'Response should be not empty string.');
+  assert.ok(body.includes(substring), 'Response does not contains.');
 });
 
 defineStep('proxy is used', function() {
-  this.isUseProxy = true;
+  request.setUseProxy(true);
 });
 
 defineStep('proxy auth is {string}', function(auth) {
-  this.proxyAuth = auth;
+  request.setProxyAuth(auth);
 });

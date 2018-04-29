@@ -1,8 +1,6 @@
 const assert = require('assert');
-const { setDefaultTimeout, defineStep, AfterAll } = require('cucumber');
+const { defineStep, AfterAll } = require('cucumber');
 const { DockerHelper } = require('./docker-helper');
-
-setDefaultTimeout(3 * 60 * 1000);
 
 const docker = new DockerHelper();
 let containerRunning = false;
