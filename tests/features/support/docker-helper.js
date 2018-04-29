@@ -57,7 +57,8 @@ class DockerHelper {
 
   onLogsContains(substring, callback = err => {}) {
     let logs = '';
-    const proc = this.exec(
+    let proc;
+    proc = this.exec(
       `docker logs -f '${this.containerName}'`,
       err => {
         if (err) {
@@ -68,7 +69,9 @@ class DockerHelper {
         this.logger.logs(data.trim());
         logs += data;
         if (logs.includes(substring)) {
-          proc.kill();
+          if (proc) {
+            proc.kill();
+          }
           callback();
         }
       }
@@ -91,7 +94,8 @@ class DockerHelper {
   }
 
   onEventHealthStatusChange(callback = err => {}) {
-    const proc = this.exec(
+    let proc;
+    proc = this.exec(
       `docker events --filter 'container=${this.containerName}' --filter 'event=health_status'`,
       err => {
         if (err) {
@@ -100,7 +104,9 @@ class DockerHelper {
       },
       data => {
         this.logger.events(data.trim());
-        proc.kill();
+        if (proc) {
+          proc.kill();
+        }
         callback();
       }
     );
