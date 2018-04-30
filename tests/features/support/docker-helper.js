@@ -9,7 +9,7 @@ class DockerHelper {
     return 30 * 1000;
   }
   static get waitTimeout() {
-    return 2 * 60 * 1000;
+    return 3 * 60 * 1000;
   }
 
   constructor(listenAddr = '127.0.0.1:1080') {

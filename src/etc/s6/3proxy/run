@@ -7,11 +7,12 @@ cat << EOF > $CONFIG
 log
 fakeresolve
 timeouts 30 30 60 60 180 1800 60 120
-users ${PROXY_USER}:CL:${PROXY_PASSWORD}
+internal 0.0.0.0
+users "${PROXY_USER}:CL:${PROXY_PASSWORD}"
 auth strong
 allow ${PROXY_USER}
 parent 1000 socks5+ 127.0.0.1 9050
 socks -p1080
 EOF
 
-exec /usr/bin/3proxy $CONFIG
+exec gosu proxy:proxy 3proxy $CONFIG
