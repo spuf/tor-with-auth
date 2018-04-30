@@ -9,6 +9,6 @@ SOCKSPort 127.0.0.1:9050
 DataDirectory /var/lib/tor
 EOF
 
-chown -Rh proxy:proxy /var/lib/tor
+chown -Rh nobody:nogroup /var/lib/tor
 
-exec gosu proxy:proxy tor -f $CONFIG
+exec gosu nobody:nogroup tor -f $CONFIG
