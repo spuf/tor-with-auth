@@ -30,7 +30,6 @@ file:
     - "ExitPolicy reject *:*"
     - "PublishServerDescriptor 0"
     - "ExcludeExitNodes {ua},{ru},{by},{kz},{tm},{cn}"
-    - "User tor"
     - "HardwareAccel 1"
   /etc/3proxy/3proxy.cfg:
     exists: true
@@ -42,7 +41,7 @@ file:
     - "log"
     - "fakeresolve"
     - "timeouts 30 30 60 60 180 1800 60 120"
-    - "users user:CL:pass"
+    - "users \"user:CL:pass\""
     - "auth strong"
     - "allow user"
     - "parent 1000 socks5+ 127.0.0.1 9050"
