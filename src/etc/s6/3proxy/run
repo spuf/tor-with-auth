@@ -15,4 +15,4 @@ parent 1000 socks5+ 127.0.0.1 9050
 socks -p1080
 EOF
 
-exec gosu 3proxy:3proxy 3proxy $CONFIG
+exec gosu proxy:proxy 3proxy $CONFIG
