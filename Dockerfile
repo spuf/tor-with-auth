@@ -1,9 +1,13 @@
 FROM alpine:edge
 
+RUN addgroup -g 65001 -S 3proxy && \
+    adduser -u 65001 -S -h /dev/null -G 3proxy 3proxy && \
+    addgroup -g 65002 -S tor && \
+    adduser -u 65002 -S -h /dev/null -G tor tor
+
 RUN apk --no-cache upgrade && \
-    apk --no-cache add s6 curl && \
     echo 'http://dl-cdn.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories  && \
-    apk --no-cache add tor 3proxy
+    apk --no-cache add s6 curl gosu tor 3proxy
 
 ENV TOR_RelayBandwidthRate="1250 KBytes" \
     TOR_RelayBandwidthBurst="2500 KBytes" \
@@ -15,7 +19,7 @@ ENV TOR_RelayBandwidthRate="1250 KBytes" \
     PROXY_USER="user" \
     PROXY_PASSWORD="pass"
 
-ADD src/etc/s6 /etc/s6
+COPY src/etc/s6 /etc/s6
 
 EXPOSE 1080
 
