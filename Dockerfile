@@ -15,7 +15,7 @@ COPY src/etc/s6 /etc/s6
 EXPOSE 1080
 
 HEALTHCHECK --interval=60s --timeout=30s --start-period=60s \
-    CMD sh -c "curl -fsSL -x 'socks5h://127.0.0.1:9050' 'https://ifconfig.co/json' || exit 1"
+    CMD curl -fsSL -m 30 -x 'socks5h://127.0.0.1:9050' 'https://ifconfig.co/json' || exit 1
 
 VOLUME [ "/var/lib/tor" ]
 

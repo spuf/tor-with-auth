@@ -1,11 +1,10 @@
 #!/bin/sh
 set -e
 
-GOSS_VER=$1
-GOSS_DST=$2
+GOSS_VER=$npm_package_config_goss_version
+GOSS_DST=node_modules/.bin
 
 if [ ! -d $GOSS_DST ]; then
-  echo "Usage: $0 version path/to/install"
   exit 1
 fi
 
