@@ -24,11 +24,7 @@ file:
     contains:
     - "SOCKSPort 127.0.0.1:9050"
     - "DataDirectory /var/lib/tor"
-    - "RelayBandwidthRate 1250 KBytes"
-    - "RelayBandwidthBurst 2500 KBytes"
-    - "ExitRelay 0"
-    - "ExitPolicy reject *:*"
-    - "PublishServerDescriptor 0"
+    - "ClientOnly 1"
     - "ExcludeExitNodes {ua},{ru},{by},{kz},{tm},{cn}"
     - "HardwareAccel 1"
   /etc/3proxy/3proxy.cfg:
