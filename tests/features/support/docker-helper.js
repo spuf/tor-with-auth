@@ -50,7 +50,9 @@ class DockerHelper {
 
   run(callback = err => {}) {
     this.exec(
-      `docker run -d --rm -p '${this.listenAddr}:1080' --name '${this.containerName}' '${
+      `docker run -d --rm -p '${
+        this.listenAddr
+      }:1080' -v 'tor-with-auth-data:/var/lib/tor' --name '${this.containerName}' '${
         this.imageName
       }'`,
       DockerHelper.execTimeout,

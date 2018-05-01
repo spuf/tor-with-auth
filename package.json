@@ -4,9 +4,9 @@
   "scripts": {
     "postinstall": "tests/goss/install.sh v0.3.5 node_modules/.bin",
     "build": "docker build --quiet -t tor-with-auth .",
-    "goss": "GOSS_FILES_PATH=tests/goss GOSS_OPTS='--color -f rspecish' dgoss run tor-with-auth",
+    "goss": "GOSS_FILES_PATH=tests/goss GOSS_OPTS='--color -f rspecish' dgoss run -v 'tor-with-auth-data:/var/lib/tor' tor-with-auth",
     "pretest": "npm run build && npm run goss",
-    "test": "cucumber-js tests/features"
+    "test": "DEBUG=docker:* cucumber-js tests/features"
   },
   "dependencies": {
     "cucumber": "^4.2.1",

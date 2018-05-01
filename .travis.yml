@@ -6,3 +6,7 @@ services:
 language: node_js
 node_js:
 - node
+
+cache:
+  directories:
+    - $(docker volume inspect -f '{{.Mountpoint}}' tor-with-auth-data)
