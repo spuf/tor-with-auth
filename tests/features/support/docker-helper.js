@@ -12,10 +12,10 @@ class DockerHelper {
     return 3 * 60 * 1000;
   }
 
-  constructor(listenAddr = '127.0.0.1:1080') {
-    this.imageName = 'tor-with-auth';
+  constructor() {
+    this.imageName = process.env.npm_package_config_image;
     this.containerName = `${this.imageName}-test`;
-    this.listenAddr = listenAddr;
+    this.listenAddr = process.env.npm_package_config_listen;
     this.logger = {
       exec: debug('docker:exec'),
       stdout: debug('docker:stdout'),
@@ -50,9 +50,9 @@ class DockerHelper {
 
   run(callback = err => {}) {
     this.exec(
-      `docker run -d --rm -p '${this.listenAddr}:1080' --name '${this.containerName}' '${
-        this.imageName
-      }'`,
+      `docker run -d --rm -p '${this.listenAddr}:1080' -v '${
+        process.env.npm_package_config_volume
+      }' --name '${this.containerName}' '${this.imageName}'`,
       DockerHelper.execTimeout,
       (err, stdout, stderr) => {
         if (stderr) {
