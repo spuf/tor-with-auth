@@ -3,6 +3,9 @@ set -e
 
 CONFIG=/etc/3proxy/3proxy.cfg
 
+touch $CONFIG
+chmod 0644 $CONFIG
+
 cat << EOF > $CONFIG
 log
 fakeresolve
@@ -15,4 +18,4 @@ parent 1000 socks5+ 127.0.0.1 9050
 socks -p1080
 EOF
 
-exec gosu nobody:nogroup 3proxy $CONFIG
+exec s6-setuidgid nobody 3proxy $CONFIG

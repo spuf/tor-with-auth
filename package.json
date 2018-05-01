@@ -1,10 +1,20 @@
 {
   "name": "tor-with-auth-tests",
   "private": true,
+  "config": {
+    "image": "tor-with-auth",
+    "volume": "tor-with-auth-data:/var/lib/tor",
+    "listen": "127.0.0.1:1080",
+    "goss": {
+      "files": "tests/goss",
+      "version": "v0.3.5",
+      "options": "--color -f rspecish"
+    }
+  },
   "scripts": {
-    "postinstall": "tests/goss/install.sh v0.3.5 node_modules/.bin",
-    "build": "docker build --quiet -t tor-with-auth .",
-    "goss": "GOSS_FILES_PATH=tests/goss GOSS_OPTS='--color -f rspecish' dgoss run tor-with-auth",
+    "postinstall": "$npm_package_config_goss_files/install.sh",
+    "build": "docker build --quiet -t $npm_package_config_image .",
+    "goss": "$npm_package_config_goss_files/wrapper.sh",
     "pretest": "npm run build && npm run goss",
     "test": "cucumber-js tests/features"
   },
