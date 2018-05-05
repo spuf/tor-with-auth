@@ -23,10 +23,10 @@ file:
     filetype: file
     contains:
     - "SOCKSPort 127.0.0.1:9050"
+    - "DNSPort 127.0.0.1:5353"
+    - "AutomapHostsOnResolve 1"
     - "DataDirectory /var/lib/tor"
     - "ClientOnly 1"
-    - "ExcludeExitNodes {ua},{ru},{by},{kz},{tm},{cn}"
-    - "HardwareAccel 1"
   /etc/3proxy/3proxy.cfg:
     exists: true
     mode: "0644"
@@ -34,12 +34,9 @@ file:
     group: root
     filetype: file
     contains:
-    - "log"
-    - "fakeresolve"
-    - "timeouts 30 30 60 60 180 1800 60 120"
+    - "nserver 127.0.0.1:5353"
     - "users \"user:CL:pass\""
     - "auth strong"
-    - "allow user"
     - "parent 1000 socks5+ 127.0.0.1 9050"
     - "socks -p1080"
 port:

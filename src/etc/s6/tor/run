@@ -10,6 +10,8 @@ chmod 0644 $CONFIG
 printenv | grep '^TOR_' | sed -E 's/TOR_([^=]*)=(.*)/\1 \2/' > $CONFIG
 cat << EOF >> $CONFIG
 SOCKSPort 127.0.0.1:9050
+DNSPort 127.0.0.1:5353
+AutomapHostsOnResolve 1
 DataDirectory $DATADIR
 EOF
 

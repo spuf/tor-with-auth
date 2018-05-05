@@ -5,7 +5,6 @@ RUN apk --no-cache upgrade && \
     apk --no-cache add s6 curl tor 3proxy
 
 ENV TOR_ClientOnly="1" \
-    TOR_ExcludeExitNodes="{ua},{ru},{by},{kz},{tm},{cn}" \
     TOR_HardwareAccel="1" \
     PROXY_USER="user" \
     PROXY_PASSWORD="pass"
