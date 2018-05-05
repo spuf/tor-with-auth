@@ -2,7 +2,7 @@ FROM alpine:edge
 
 RUN apk --no-cache upgrade && \
     echo 'http://dl-cdn.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories  && \
-    apk --no-cache add s6 curl tor 3proxy
+    apk --no-cache add s6 curl tor 3proxy dnsmasq
 
 ENV TOR_ClientOnly="1" \
     TOR_HardwareAccel="1" \

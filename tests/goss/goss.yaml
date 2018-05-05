@@ -14,6 +14,11 @@ package:
     versions:
       contain-element:
         have-prefix: "0.8"
+  dnsmasq:
+    installed: true
+    versions:
+      contain-element:
+        have-prefix: "2."
 file:
   /etc/tor/torrc:
     exists: true
@@ -21,26 +26,40 @@ file:
     owner: root
     group: root
     filetype: file
-    contains:
-    - "SOCKSPort 127.0.0.1:9050"
-    - "DNSPort 127.0.0.1:5353"
-    - "AutomapHostsOnResolve 1"
-    - "DataDirectory /var/lib/tor"
-    - "ClientOnly 1"
+    sha256: "0649859767905dfa496725125bb8d343f2193dd6fece341e44fc6f195a24d373"
+  /var/log/tor:
+    exists: true
+    mode: "0755"
+    owner: tor
+    group: root
+    filetype: directory
   /etc/3proxy/3proxy.cfg:
     exists: true
     mode: "0644"
     owner: root
     group: root
     filetype: file
-    contains:
-    - "nserver 127.0.0.1:5353"
-    - "users \"user:CL:pass\""
-    - "auth strong"
-    - "parent 1000 socks5+ 127.0.0.1 9050"
-    - "socks -p1080"
+    sha256: "8bcc99022092e95b8c07de349b814f30fcef8f0e2f49620cbf9034e6a6c517ca"
+  /etc/dnsmasq.resolv.conf:
+    exists: true
+    mode: "0644"
+    owner: root
+    group: root
+    filetype: file
+    sha256: "b65b87dca5341de9ac69f94d6078d8d486cea26345666976c76c603f1d338b8f"
+  /etc/dnsmasq.conf:
+    exists: true
+    mode: "0644"
+    owner: root
+    group: root
+    filetype: file
+    sha256: "ee362026dce9df4536c048af8f1bd6d749b537c8493745e44de8ed8a188853e4"
 port:
   tcp:9050:
+    listening: true
+    ip:
+    - 127.0.0.1
+  tcp:5353:
     listening: true
     ip:
     - 127.0.0.1
@@ -52,4 +71,6 @@ process:
   3proxy:
     running: true
   tor:
+    running: true
+  dnsmasq:
     running: true

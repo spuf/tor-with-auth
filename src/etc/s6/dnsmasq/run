@@ -1,0 +1,36 @@
+#!/bin/sh
+set -e
+
+RESOLV=/etc/dnsmasq.resolv.conf
+
+touch $RESOLV
+chmod 0644 $RESOLV
+
+cat << EOF > $RESOLV
+nameserver 1.1.1.1
+nameserver 1.0.0.1
+nameserver 8.8.8.8
+nameserver 8.8.4.4
+EOF
+
+CONFIG=/etc/dnsmasq.conf
+
+touch $CONFIG
+chmod 0644 $CONFIG
+
+cat << EOF > $CONFIG
+log-facility=-
+
+port=5353
+listen-address=127.0.0.1
+bind-interfaces
+no-dhcp-interface=
+
+resolv-file=$RESOLV
+no-poll
+no-hosts
+
+address=/onion/127.0.0.2
+EOF
+
+exec s6-setuidgid nobody dnsmasq --no-daemon -C $CONFIG
