@@ -1,8 +1,14 @@
 #!/bin/sh
 set -e
 
-CONFIG=/etc/tor/torrc
 DATADIR=/var/lib/tor
+
+chmod -R 0600 $DATADIR
+chmod 0700 $DATADIR
+
+chown -R nobody:nogroup $DATADIR
+
+CONFIG=/etc/tor/torrc
 
 touch $CONFIG
 chmod 0644 $CONFIG
@@ -10,14 +16,7 @@ chmod 0644 $CONFIG
 printenv | grep '^TOR_' | sed -E 's/TOR_([^=]*)=(.*)/\1 \2/' > $CONFIG
 cat << EOF >> $CONFIG
 SOCKSPort 127.0.0.1:9050
-DNSPort 127.0.0.1:5353
-AutomapHostsOnResolve 1
 DataDirectory $DATADIR
 EOF
-
-chmod -R 0600 $DATADIR
-chmod 0700 $DATADIR
-
-chown -R nobody:nogroup $DATADIR
 
 exec s6-setuidgid nobody tor -f $CONFIG

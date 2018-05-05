@@ -14,14 +14,13 @@ timeouts 30 30 60 60 180 1800 60 120
 internal 0.0.0.0
 
 nserver 127.0.0.1:5353
-nserver 1.1.1.1
-nserver 8.8.8.8
-nscache 65535
 
 users "${PROXY_USER}:CL:${PROXY_PASSWORD}"
 auth strong
-allow *
+allow * * 127.0.0.2
 parent 1000 socks5+ 127.0.0.1 9050
+allow *
+parent 1000 socks5 127.0.0.1 9050
 socks -p1080
 EOF
 
