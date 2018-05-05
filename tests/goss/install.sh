@@ -4,6 +4,10 @@ set -e
 GOSS_VER=$npm_package_config_goss_version
 GOSS_DST=node_modules/.bin
 
+if ! curl -fsSL https://api.github.com/repos/aelsabbahy/goss/releases/latest | fgrep -o "\"tag_name\": \"$GOSS_VER\"" &> /dev/null; then
+  echo "Goss $GOSS_VER is not the latest!"
+fi
+
 if [ ! -d $GOSS_DST ]; then
   exit 1
 fi

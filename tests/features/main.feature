@@ -31,6 +31,22 @@ Feature: container
     When I send request to "https://check.torproject.org"
     Then request is failed
 
+  Scenario: proxy errors with wrong password
+    Given container is running
+    And container logs has "Tor has successfully opened a circuit"
+    And proxy is used
+    And proxy auth is "user:wrong"
+    When I send request to "https://check.torproject.org"
+    Then request is failed
+
+  Scenario: proxy errors without password
+    Given container is running
+    And container logs has "Tor has successfully opened a circuit"
+    And proxy is used
+    And proxy auth is "user"
+    When I send request to "https://check.torproject.org"
+    Then request is failed
+
   Scenario: proxy errors without user
     Given container is running
     And container logs has "Tor has successfully opened a circuit"
