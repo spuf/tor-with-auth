@@ -1,4 +1,5 @@
 FROM alpine:edge
+ENV LAST_UPGRADE 2018-05-21
 
 RUN apk --no-cache upgrade && \
     echo 'http://dl-cdn.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories  && \
