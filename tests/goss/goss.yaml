@@ -58,15 +58,15 @@ port:
   tcp:9050:
     listening: true
     ip:
-    - 127.0.0.1
+      - 127.0.0.1
   tcp:5353:
     listening: true
     ip:
-    - 127.0.0.1
+      - 127.0.0.1
   tcp:1080:
     listening: true
     ip:
-    - 0.0.0.0
+      - 0.0.0.0
 process:
   3proxy:
     running: true

@@ -1,8 +1,8 @@
-const path = require('path');
-const child_process = require('child_process');
-const debug = require('debug');
+const path = require("path");
+const child_process = require("child_process");
+const debug = require("debug");
 
-const rootDir = path.resolve(__dirname, '../../..');
+const rootDir = path.resolve(__dirname, "../../..");
 
 class DockerHelper {
   static get execTimeout() {
@@ -13,20 +13,25 @@ class DockerHelper {
   }
 
   constructor() {
-    this.imageName = 'tor-with-auth';
+    this.imageName = "tor-with-auth";
     this.containerName = `${this.imageName}-test`;
-    this.listenAddr = '127.0.0.1:1080';
+    this.listenAddr = "127.0.0.1:1080";
     this.logger = {
-      exec: debug('docker:exec'),
-      stdout: debug('docker:stdout'),
-      stderr: debug('docker:stderr'),
-      logs: debug('docker:logs'),
-      health: debug('docker:health'),
-      events: debug('docker:events')
+      exec: debug("docker:exec"),
+      stdout: debug("docker:stdout"),
+      stderr: debug("docker:stderr"),
+      logs: debug("docker:logs"),
+      health: debug("docker:health"),
+      events: debug("docker:events"),
     };
   }
 
-  exec(command, timeout, onResult = (err, stdout, stderr) => {}, onData = data => {}) {
+  exec(
+    command,
+    timeout,
+    onResult = (err, stdout, stderr) => {},
+    onData = (data) => {}
+  ) {
     this.logger.exec(command);
     const proc = child_process.exec(
       command,
@@ -35,20 +40,24 @@ class DockerHelper {
         onResult(err, stdout.trim(), stderr.trim());
       }
     );
-    proc.stdout.on('data', data => {
+    proc.stdout.on("data", (data) => {
       onData(data.toString());
     });
-    proc.stderr.on('data', data => {
+    proc.stderr.on("data", (data) => {
       onData(data.toString());
     });
     return proc;
   }
 
   stop(callback = () => {}) {
-    this.exec(`docker stop '${this.containerName}'`, DockerHelper.execTimeout, () => callback());
+    this.exec(
+      `docker stop '${this.containerName}'`,
+      DockerHelper.execTimeout,
+      () => callback()
+    );
   }
 
-  run(callback = err => {}) {
+  run(callback = (err) => {}) {
     this.exec(
       `docker run -d --rm -p '${this.listenAddr}:1080' -v 'tor-with-auth-data:/var/lib/tor' --name '${this.containerName}' '${this.imageName}'`,
       DockerHelper.execTimeout,
@@ -68,18 +77,18 @@ class DockerHelper {
     );
   }
 
-  onLogsContains(substring, callback = err => {}) {
-    let logs = '';
+  onLogsContains(substring, callback = (err) => {}) {
+    let logs = "";
     let proc;
     proc = this.exec(
       `docker logs -f '${this.containerName}'`,
       DockerHelper.waitTimeout,
-      err => {
+      (err) => {
         if (err) {
           callback(err);
         }
       },
-      data => {
+      (data) => {
         this.logger.logs(data.trim());
         logs += data;
         if (logs.includes(substring)) {
@@ -111,17 +120,17 @@ class DockerHelper {
     );
   }
 
-  onEventHealthStatusChange(callback = err => {}) {
+  onEventHealthStatusChange(callback = (err) => {}) {
     let proc;
     proc = this.exec(
       `docker events --filter 'container=${this.containerName}' --filter 'event=health_status'`,
       DockerHelper.waitTimeout,
-      err => {
+      (err) => {
         if (err) {
           callback(err);
         }
       },
-      data => {
+      (data) => {
         this.logger.events(data.trim());
         if (proc) {
           proc.kill();
@@ -133,5 +142,5 @@ class DockerHelper {
 }
 
 module.exports = {
-  DockerHelper
+  DockerHelper,
 };
