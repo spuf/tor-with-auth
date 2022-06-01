@@ -1,5 +1,5 @@
-const child_process = require('child_process');
-const debug = require('debug');
+const child_process = require("child_process");
+const debug = require("debug");
 
 class RequestHelper {
   static get sendTimeout() {
@@ -7,11 +7,11 @@ class RequestHelper {
   }
 
   constructor() {
-    this.proxyAddr = '127.0.0.1:1080';
+    this.proxyAddr = "127.0.0.1:1080";
     this.logger = {
-      exec: debug('request:exec'),
-      stdout: debug('request:stdout'),
-      stderr: debug('request:stderr')
+      exec: debug("request:exec"),
+      stdout: debug("request:stdout"),
+      stderr: debug("request:stderr"),
     };
     this.reset();
   }
@@ -41,19 +41,24 @@ class RequestHelper {
   }
 
   send(url, callback = () => {}) {
-    const cmd = ['curl', '-fsSL', '-m', Math.floor(RequestHelper.sendTimeout / 1000).toString()];
+    const cmd = [
+      "curl",
+      "-fsSL",
+      "-m",
+      Math.floor(RequestHelper.sendTimeout / 1000).toString(),
+    ];
     if (this.useProxy) {
-      cmd.push('-x');
-      const proxyUri = ['socks5h://'];
+      cmd.push("-x");
+      const proxyUri = ["socks5h://"];
       if (this.proxyAuth) {
         proxyUri.push(this.proxyAuth);
-        proxyUri.push('@');
+        proxyUri.push("@");
       }
       proxyUri.push(this.proxyAddr);
-      cmd.push(`'${proxyUri.join('')}'`);
+      cmd.push(`'${proxyUri.join("")}'`);
     }
     cmd.push(`'${url}'`);
-    this.exec(cmd.join(' '), (err, stdout, stderr) => {
+    this.exec(cmd.join(" "), (err, stdout, stderr) => {
       this.responseBody = stdout;
       this.responseError = err;
       callback();
@@ -78,5 +83,5 @@ class RequestHelper {
 }
 
 module.exports = {
-  RequestHelper
+  RequestHelper,
 };
