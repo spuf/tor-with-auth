@@ -7,7 +7,7 @@ Feature: container
 
   Scenario: proxy is using Tor
     Given container is running
-    And container logs has "Tor has successfully opened a circuit"
+    And container logs has "Bootstrapped 100%"
     And proxy is used
     And proxy auth is "user:pass"
     When I send request to "https://check.torproject.org/?lang=en_US"
@@ -16,7 +16,7 @@ Feature: container
 
   Scenario: proxy resolves onion domains
     Given container is running
-    And container logs has "Tor has successfully opened a circuit"
+    And container logs has "Bootstrapped 100%"
     And proxy is used
     And proxy auth is "user:pass"
     When I send request to "http://facebookcorewwwi.onion"
@@ -25,7 +25,7 @@ Feature: container
 
   Scenario: proxy errors with invalid user
     Given container is running
-    And container logs has "Tor has successfully opened a circuit"
+    And container logs has "Bootstrapped 100%"
     And proxy is used
     And proxy auth is "root"
     When I send request to "https://check.torproject.org"
@@ -33,7 +33,7 @@ Feature: container
 
   Scenario: proxy errors with wrong password
     Given container is running
-    And container logs has "Tor has successfully opened a circuit"
+    And container logs has "Bootstrapped 100%"
     And proxy is used
     And proxy auth is "user:wrong"
     When I send request to "https://check.torproject.org"
@@ -41,7 +41,7 @@ Feature: container
 
   Scenario: proxy errors without password
     Given container is running
-    And container logs has "Tor has successfully opened a circuit"
+    And container logs has "Bootstrapped 100%"
     And proxy is used
     And proxy auth is "user"
     When I send request to "https://check.torproject.org"
@@ -49,7 +49,7 @@ Feature: container
 
   Scenario: proxy errors without user
     Given container is running
-    And container logs has "Tor has successfully opened a circuit"
+    And container logs has "Bootstrapped 100%"
     And proxy is used
     When I send request to "https://check.torproject.org"
     Then request is failed
