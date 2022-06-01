@@ -7,7 +7,7 @@ class RequestHelper {
   }
 
   constructor() {
-    this.proxyAddr = process.env.npm_package_config_listen;
+    this.proxyAddr = '127.0.0.1:1080';
     this.logger = {
       exec: debug('request:exec'),
       stdout: debug('request:stdout'),
